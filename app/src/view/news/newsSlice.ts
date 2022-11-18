@@ -36,7 +36,7 @@ const newsSlice = createSlice({
     builder.addCase(thunkedGetNews.fulfilled, (state, { payload }) => {
       state.isLoadingNews = false;
       state.newsIDs = payload.ids;
-      state.news = payload.news.sort((a, b) => a.time - b.time);
+      state.news = payload.news.sort((a, b) => b.time - a.time);
       if (state.errors) {
         state.errors = null;
       }

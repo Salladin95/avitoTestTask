@@ -3,12 +3,19 @@ import { ListItem, ListItemText } from '@mui/material';
 import { IComment } from '../../api/contracts';
 import { getComments } from '../../api/api';
 
-type CommentProps = { comment: IComment; paddingLeft?: number };
+type CommentProps = { comment: IComment; paddingLeft?: number; rec?: boolean };
 
-const Comment = ({ comment, paddingLeft = 2 }: CommentProps) => {
+const Comment = ({ comment, paddingLeft = 2, rec = false }: CommentProps) => {
   const pl = paddingLeft + 2;
   const [kids, setKids] = useState<null | IComment[]>(null);
   const [isLoadingComment, setIsLoadingComment] = useState(false);
+
+  if (rec && comment.kids && comment.kids.length > 0) {
+    (async () => {
+      const kids = await getComments(comment.kids);
+      setKids(kids);
+    })();
+  }
 
   const handleCommentClick = async () => {
     if (!comment.kids || isLoadingComment) {
@@ -30,7 +37,10 @@ const Comment = ({ comment, paddingLeft = 2 }: CommentProps) => {
       <ListItem sx={{ pl, cursor: 'pointer' }}>
         <ListItemText onClick={handleCommentClick}>Comment: {comment.text}</ListItemText>
       </ListItem>
-      {kids && kids.map((kid) => <Comment key={kid.id} comment={kid} paddingLeft={pl} />)}
+      {kids &&
+        kids.map((kid) => {
+          return <Comment key={kid.id} comment={kid} paddingLeft={pl} rec={true} />;
+        })}
     </>
   );
 };

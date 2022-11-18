@@ -6,6 +6,7 @@ import Backdrop from '../../components/backdrop';
 import thunkedGetNews from './thunkedGetNews';
 
 import { controller, restartAxiosController } from '../../api/api';
+import { Button, Container } from '@mui/material';
 
 const News = () => {
   const dispatch = useAppDispatch();
@@ -13,7 +14,7 @@ const News = () => {
   const isLoading = useAppSelector(selectIsLoadingNews);
   const intervalId: React.MutableRefObject<NodeJS.Timer | null> = useRef(null);
 
-  const onRefreshBtnClick = useCallback(() => {
+  const handleRefreshBtnClick = useCallback(() => {
     if (isLoading) {
       controller.abort();
       restartAxiosController();
@@ -33,18 +34,22 @@ const News = () => {
     };
   }, [dispatch]);
 
-  const isOpenBackdrop = news === null || (news?.length === 0 && isLoading);
   return (
-    <>
-      <Backdrop open={isOpenBackdrop} />
-      {!isOpenBackdrop && (
-        <NewsPresentation
-          onStoryClick={onStoryClick}
-          onRefreshBtnClick={onRefreshBtnClick}
-          news={news}
-        />
+    <Container>
+      <Backdrop open={isLoading} />
+      {!isLoading && (
+        <>
+          <Button
+            onClick={handleRefreshBtnClick}
+            sx={{ width: '100px', my: '1rem' }}
+            variant="outlined"
+          >
+            Refresh
+          </Button>
+          <NewsPresentation onStoryClick={onStoryClick} news={news} />{' '}
+        </>
       )}
-    </>
+    </Container>
   );
 };
 
