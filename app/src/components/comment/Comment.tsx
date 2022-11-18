@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ListItem, ListItemText } from '@mui/material';
 import { IComment } from '../../api/contracts';
 import { getComments } from '../../api/api';
@@ -10,17 +10,7 @@ const Comment = ({ comment, paddingLeft = 2, rec = false }: CommentProps) => {
   const [kids, setKids] = useState<null | IComment[]>(null);
   const [isLoadingComment, setIsLoadingComment] = useState(false);
 
-  if (rec && comment.kids && comment.kids.length > 0) {
-    (async () => {
-      const kids = await getComments(comment.kids);
-      setKids(kids);
-    })();
-  }
-
-  const handleCommentClick = async () => {
-    if (!comment.kids || isLoadingComment) {
-      return;
-    }
+  const updateComments = useCallback(async () => {
     try {
       setIsLoadingComment(true);
       const commentKids = await getComments(comment.kids);
@@ -30,7 +20,22 @@ const Comment = ({ comment, paddingLeft = 2, rec = false }: CommentProps) => {
       setIsLoadingComment(false);
       console.log(err);
     }
+  }, [comment.kids]);
+
+  const handleCommentClick = async () => {
+    if (!comment.kids || isLoadingComment || kids) {
+      return;
+    }
+    await updateComments();
   };
+
+  useEffect(() => {
+    if (rec && comment.kids && comment.kids.length > 0) {
+      (async () => {
+        await updateComments();
+      })();
+    }
+  }, [comment.kids, rec, updateComments]);
 
   return (
     <>
