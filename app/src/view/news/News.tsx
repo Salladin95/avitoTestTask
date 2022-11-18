@@ -27,10 +27,8 @@ const News = () => {
 
   useEffect(() => {
     dispatch(thunkedGetNews());
-    console.log('effect');
     intervalId.current = setInterval(() => dispatch(thunkedGetNews()), 60000);
     return () => {
-      console.log('return');
       intervalId.current && clearInterval(intervalId.current);
     };
   }, [dispatch]);
